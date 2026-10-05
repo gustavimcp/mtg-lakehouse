@@ -1,0 +1,17 @@
+mtg_lake:
+  target: dev
+  outputs:
+    dev:
+      type: duckdb
+      path: "{{ env_var('MTG_DUCKDB_PATH', '') or '../data/mtg.duckdb' }}"
+      threads: 4
+      extensions: [httpfs, json]
+      # Credenciais do lake (R2 ou S3). Em modo local (MTG_LAKE = pasta) não são usadas.
+      secrets:
+        - type: s3
+          key_id: "{{ env_var('S3_ACCESS_KEY_ID', '') }}"
+          secret: "{{ env_var('S3_SECRET_ACCESS_KEY', '') }}"
+          region: "{{ env_var('S3_REGION', '') or 'us-east-1' }}"
+          endpoint: "{{ env_var('S3_ENDPOINT', '') or 's3.amazonaws.com' }}"
+          url_style: "{{ env_var('S3_URL_STYLE', '') or 'vhost' }}"
+          use_ssl: "{{ (env_var('S3_USE_SSL', '') or 'true') | lower != 'false' }}"

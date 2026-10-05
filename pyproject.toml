@@ -1,0 +1,17 @@
+[project]
+name = "mtg-lake"
+version = "1.0.0"
+description = "Pipeline MTG: Scryfall -> data lake (R2/S3) -> dbt + DuckDB -> Parquet -> Power BI"
+requires-python = ">=3.12"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+pythonpath = ["."]
+
+[tool.ruff]
+line-length = 120
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]

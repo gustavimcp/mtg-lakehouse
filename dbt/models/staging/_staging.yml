@@ -1,0 +1,32 @@
+version: 2
+
+models:
+  - name: stg_scryfall__oracle_cards
+    description: "Bulk `oracle_cards` da Scryfall: uma linha por carta única, com o JSON completo em `payload`."
+    columns:
+      - name: card_id
+        data_tests: [not_null, unique]
+    data_tests:
+      - volume_minimo:
+          arguments:
+            minimo: "{{ var('min_oracle_cards') }}"
+
+  - name: stg_scryfall__default_cards
+    description: "Bulk `default_cards` da Scryfall: uma linha por impressão."
+    columns:
+      - name: card_id
+        data_tests: [not_null, unique]
+    data_tests:
+      - volume_minimo:
+          arguments:
+            minimo: "{{ var('min_default_cards') }}"
+
+  - name: stg_scryfall__sets
+    description: "Lista de sets (endpoint `/sets`)."
+    columns:
+      - name: set_id
+        data_tests: [not_null, unique]
+    data_tests:
+      - volume_minimo:
+          arguments:
+            minimo: "{{ var('min_sets') }}"

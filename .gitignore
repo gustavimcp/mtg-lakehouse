@@ -1,0 +1,19 @@
+# Segredos
+.env
+
+# Dados locais (lake em modo pasta, banco DuckDB, estado entre etapas)
+data/
+
+# dbt
+dbt/target/
+dbt/logs/
+dbt/dbt_packages/
+dbt/.user.yml
+logs/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+.ruff_cache/

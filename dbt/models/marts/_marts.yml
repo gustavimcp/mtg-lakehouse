@@ -1,0 +1,103 @@
+version: 2
+
+# Tudo neste diretório vai para o schema "gold" e é publicado como Parquet no lake.
+# Os testes rodam no `dbt build`: se algum falhar (severity error), nada é publicado.
+
+models:
+  - name: dim_sets
+    description: "Um registro por set (coleção). Substitui mtg_sets.csv e set_icons.csv."
+    columns:
+      - name: set_id
+        data_tests: [not_null, unique]
+      - name: set_code
+        data_tests: [not_null, unique]
+
+  - name: dim_cards
+    description: "Uma linha por carta única (oracle). Substitui mtg_dimensao.csv."
+    columns:
+      - name: id
+        data_tests: [not_null, unique]
+      - name: name
+        data_tests: [not_null]
+      - name: rarity
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: [common, uncommon, rare, mythic, special, bonus]
+              config:
+                severity: warn
+
+  - name: dim_prints
+    description: "Uma linha por impressão. Substitui mtg_dimensao_prints.csv."
+    columns:
+      - name: id
+        data_tests: [not_null, unique]
+      - name: name
+        data_tests: [not_null]
+      - name: set_code
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('dim_sets')
+                field: set_code
+              config:
+                severity: warn
+
+  - name: fct_card_prices_dia
+    description: "Preços do dia por carta única; publicado em gold/fct_card_prices/mes=AAAA-MM.parquet."
+    columns:
+      - name: card_id
+        data_tests:
+          - unique
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_cards')
+                field: id
+
+  - name: fct_print_prices_dia
+    description: "Preços do dia por impressão; publicado em gold/fct_print_prices/mes=AAAA-MM.parquet."
+    columns:
+      - name: print_id
+        data_tests:
+          - unique
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_prints')
+                field: id
+
+  - name: bridge_card_keywords
+    description: "Ponte carta x keyword."
+    data_tests:
+      - unique:
+          arguments:
+            column_name: "card_id || '|' || keyword"
+
+  - name: bridge_print_keywords
+    description: "Ponte impressão x keyword."
+    data_tests:
+      - unique:
+          arguments:
+            column_name: "print_id || '|' || keyword"
+
+  - name: dim_keywords
+    description: "Lista de keywords. Substitui unique_keywords*.csv."
+    columns:
+      - name: keyword
+        data_tests: [not_null, unique]
+
+  - name: keyword_pairs
+    description: "Compatibilidade com o modelo antigo (keyword_pairs.csv)."
+
+  - name: agg_set_verbose
+    description: "Tamanho médio do texto das cartas por set (sem texto de lembrete). Substitui set_verbose.csv."
+    columns:
+      - name: set_name
+        data_tests: [unique]
+
+  - name: agg_year_verbose
+    description: "Tamanho médio do texto das cartas por ano. Substitui year_verbose.csv."
+    columns:
+      - name: release_year
+        data_tests: [unique]

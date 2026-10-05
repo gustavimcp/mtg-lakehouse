@@ -1,0 +1,4 @@
+# Final de linha Linux (o GitHub Actions roda em Ubuntu)
+* text=auto eol=lf
+*.gz binary
+*.parquet binary

@@ -1,0 +1,36 @@
+name: mtg_lake
+version: "1.0.0"
+config-version: 2
+profile: mtg_lake
+
+model-paths: ["models"]
+macro-paths: ["macros"]
+test-paths: ["tests"]
+target-path: "target"
+clean-targets: ["target", "dbt_packages"]
+
+vars:
+  # Passadas pelo Python (python -m mtg_lake transformar); os valores abaixo são só padrões
+  lake: "./data/lake"
+  snapshot_date: null
+  # Limites mínimos de volume (os testes falham abaixo disso)
+  min_oracle_cards: 25000
+  min_default_cards: 80000
+  min_sets: 500
+
+models:
+  mtg_lake:
+    # O DuckDB é só o motor de cálculo e é recriado a cada execução.
+    # A fonte da verdade é o lake (bronze em JSONL.gz, gold em Parquet).
+    staging:
+      +schema: staging
+      +materialized: table   # lê o JSON do lake uma única vez
+    intermediate:
+      +schema: intermediate
+      +materialized: table
+    marts:
+      +schema: gold           # tudo que está em gold é publicado como Parquet
+      +materialized: table
+
+flags:
+  send_anonymous_usage_stats: false
